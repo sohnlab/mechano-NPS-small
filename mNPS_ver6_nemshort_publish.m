@@ -38,14 +38,7 @@ numrecov=0; %number of recovery pulses
 numpul=2; %number of total pulses in a cell event 
 numsq=1;
 
-%% simple data processing
-%for processing 
-N = 20; %for downsampling
-smoothingparam= 100; %for smoothing 
-
-ysmoothed = fastsmooth(data,smoothingparam,1,1);  % perform rectangular smoothing
-ym = downsample(ysmoothed,N); %downsample by period N
-
+%% option to continue where you left off last time 
 %do we want to continue analyzing from a file we left off on? 
 contanalysis=input('do you want to continue analysis on this dataset where you left off last time? 1=yes');
 if contanalysis==1
@@ -101,27 +94,31 @@ else
     info(1,4)=userinfov;
 end
 
+%% data pre-processing
+N = 20; %for downsampling
+smoothingparam= 100; %for smoothing 
+ysmoothed = fastsmooth(data,smoothingparam,1,1);  % perform rectangular smoothing
+ym = downsample(ysmoothed,N); %downsample by period N
 
 
-
-%for asls 
+%calculate baseline (yasls), and 2 more filtered signals (yasls2, yasls3)
 lambda = 1e8; %larger means smoother background 
 p=0; % less than 0.5 means negative is strongly supressed %0.02
 maxiter=20; % maximum iterations 
-noise=1.6e-4;
+noise=1.6e-4; %found in first data run analyzed (specific to experimental setup) 
 aslsparam1=struct('lambda', lambda, 'p', p, 'max_iter', maxiter, 'noise_margin', noise);
 aslsparam2=struct('lambda', 5, 'p', 0.5, 'max_iter', maxiter, 'noise_margin', noise);
 aslsparam3=struct('lambda',1e4, 'p', 0.5, 'max_iter', maxiter, 'noise_margin', noise);
 
-yasls = -1*ASLS2(-1*ym,aslsparam1);
-yasls2=-1*ASLS2(-1*ym,aslsparam2); 
-yasls3=-1*ASLS2(-1*ym,aslsparam3);
+yasls = -1*ASLS2(-1*ym,aslsparam1); %baseline
+yasls2=-1*ASLS2(-1*ym,aslsparam2); %smoothed signal
+yasls3=-1*ASLS2(-1*ym,aslsparam3); %smoothest signal 
 
 ydetrend = ym-yasls; %subtract the baseline from the signal, bringing it flat and to zero
 expectedpore=yasls.*(1-X); %this is the threshold for the actual pulse
 diameter5 = yasls.*(1-Y); %CONSIDER DELETING 
 upperlimit= yasls-((yasls-expectedpore).*0.9); % this is the initial threshold
-maxlimit=yasls.*(1-T);
+
 
 sqlimit= yasls.*(1-Q);
 
@@ -328,7 +325,6 @@ while i<rowthresh && useranswer==1 && threshpts(i+1,1)+wp<lengthpost
         plot(a5,xaxispost(a-wp:b+wp),expectedpore(a-wp:b+wp),'k')
         plot(a5,xaxispost(a-wp:b+wp),yasls3(a-wp:b+wp),'b')
         plot(a5,xaxispost(a-wp:b+wp),yasls2(a-wp:b+wp),'y')
-        %plot(a5,xaxispost(a-wp:b+wp),maxlimit(a-wp:b+wp)-yasls(a-wp:b+wp),'m')
         plot(a5,xaxispost(a-wp:b+wp),sqlimit(a-wp:b+wp),'g')
         xlabel(a5,strcat('expected pore, in black, =',num2str(dinput)));
         legend(a5,{'ym','yasls','upperlimit','expectedpore','yasls3','yasls2','sqlimit'});
