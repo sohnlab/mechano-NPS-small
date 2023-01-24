@@ -333,12 +333,10 @@ while i<rowthresh && useranswer==1 && threshpts(i+1,1)+wp<lengthpost
     
     useranswer0=input('bad start=0, next=1, analyze=2,skip sq and recov pulses=3,skip entire cell event=4, go back 1=5, go back 2 pulses=6, stop=anythingelse');
     
-    if useranswer0==0
-        i=i+1;
-    elseif useranswer0==2
+  
+    if useranswer0==2 %analyze 
+       
         % categorize as sizing, squeeze, or recovery for training purposes 
-        
-        
             useranswer2=input('is it sizing(1),squeeze (2), or recovery (3)');
             if isempty(useranswer2)
                  useranswer2=input('is it sizing(1),squeeze (2), or recovery (3)');
@@ -349,6 +347,8 @@ while i<rowthresh && useranswer==1 && threshpts(i+1,1)+wp<lengthpost
             if useranswer2 ~= 1 && k==1
                  useranswer2=input('is it sizing(1),squeeze (2), or recovery (3)');
             end % CHECK TO MAKE SURE THIS WORKS 
+            
+            
             switch useranswer2
                 case 1
                     cornercontext(k,1)=1;
@@ -365,196 +365,157 @@ while i<rowthresh && useranswer==1 && threshpts(i+1,1)+wp<lengthpost
                     cornerindex(k,1)=3;
                     cornerdiff(k,2)=3;
             end
-            if k<3 || cornercontext(k,1)==1 || cornercontext(k,1)==2
             
-                 %make horizontal line
-                [~,minasls]=min(yasdet(a+3:b-3));
-                minasls=minasls+a-1;
-                xline(a4,minasls,'r')
-                    %ensure that hstep does not exceed the threshpts
-                    if minasls-hstep<threshpts(i,1) || minasls+hstep>threshpts(i+1,1)
-                        if threshpts(i+1,1)-minasls > minasls-threshpts(i,1)
-                            hstep=minasls-threshpts(i,1);
-                        else 
-                            hstep=threshpts(i+1,1)-minasls;
-                        end
-                    end
-
-                    %
-                horizregion=ydetrend(minasls-hstep:minasls+hstep);
-
-                [minregion,~]=min(horizregion);
-                xlabel(a4,strcat('hstep=',num2str(hstep)));
-
-                %plot horiz line higher with error previously calculated
-                horizline=minregion+stderror*2;%is normally *2 but with 60 Hz noise you need to to up it 
-                yline(a4,horizline,'r')
-                [~,mindiff]=min(yasdiff(a:minasls));
-                mindiff=mindiff+a-1;
-                [~,maxdiff]=max(yasdiff(minasls:b));
-                maxdiff=maxdiff+minasls-1;    %all of it used to be vstepr+1
-                p1=polyfit(xaxispost(mindiff-vstepr+2:mindiff+2),ydetrend(mindiff-vstepr+2:mindiff+2),1);
-                x1=xaxispost(mindiff-vstepr+2:mindiff+2+hstep);
-                y1=polyval(p1,x1);
-                plot(a4,x1,y1,'k')
-                p2=polyfit(xaxispost(maxdiff-vstepr+2:maxdiff+2),ydetrend(maxdiff-vstepr+2:maxdiff+2),1);
-                x2=xaxispost(maxdiff+vstepr-hstep-2:maxdiff+2);
-                y2=polyval(p2,x2);
-                plot(a4,x2,y2,'k')
-
-                %find possible corner point
-                %start corner
-                startxe=(horizline-p1(2))/p1(1);
-                xline(a4,startxe,'b')
-                %end corner
-                endxe=(horizline-p2(2))/p2(1);
-                xline(a4,endxe,'b') 
-
-
-
-
-                % get the four points surrounding the startxe and endxe & +/- vertstep
-                % before and after for context 
-                for j=a:b+1
-                    if xaxispost(j)<startxe && xaxispost(j+1)>startxe
-                        %these are the two points in which the corner line crosses 
-                        %the 4 pts of interest are j-1,j,j+1,j+2 
-                        cornercontext(k,4:13)=ydetrend((j-1)-vstep:(j+2)+vstep);
-                        cornerindex(k,4:13)=xaxispost(j-1-vstep:j+2+vstep);
-                        cornerdiff(k,4:13)=ydiff2(j-1-vstep:j+2+vstep);
-                    elseif xaxispost(j)<endxe && xaxispost(j+1)>endxe
-                        %these are the two points in which the corner line crosses 
-                        %the 4 pts of interest are j-1,j,j+1,j+2 
-                        cornercontext(k,14:23)=ydetrend((j-1)-vstep:(j+2)+vstep);
-                        cornerindex(k,14:23)=xaxispost(j-1-vstep:j+2+vstep);
-                        cornerdiff(k,14:23)=ydiff2(j-1-vstep:j+2+vstep);
+            
+             %make horizontal line
+            [~,minasls]=min(yasdet(a+3:b-3));
+            minasls=minasls+a-1;
+            xline(a4,minasls,'r')
+                %ensure that hstep does not exceed the threshpts
+                if minasls-hstep<threshpts(i,1) || minasls+hstep>threshpts(i+1,1)
+                    if threshpts(i+1,1)-minasls > minasls-threshpts(i,1)
+                        hstep=minasls-threshpts(i,1);
+                    else 
+                        hstep=threshpts(i+1,1)-minasls;
                     end
                 end
-                 %what do you think start is? 
-                    %we know its either 7,8,9,10
-                    if cornerdiff(k,8)>-0.1
-                         xline(a4,cornerindex(k,7),'k')
-                         guesscheck(k,1)=1;
-                    elseif cornerdiff(k,9)>-0.1
-                        xline(a4,cornerindex(k,8),'k')
-                        guesscheck(k,1)=2;
-                    elseif cornerdiff(k,10)>-0.1
-                        xline(a4,cornerindex(k,9),'k')
-                        guesscheck(k,1)=3;
-                    elseif cornerdiff(k,11)>-0.1
-                        xline(a4,cornerindex(k,10),'k')
-                        guesscheck(k,1)=4;
-                    else
-                        xline(a4,cornerindex(k,8),'k')
-                        guesscheck(k,1)=2;
-                        noguess='noguess start'
-                    end   
-                 %end start guessing
 
-                 %what do you think end is? 
-                    %we know its either 17,18,19,20
-                    if cornerdiff(k,18)-cornerdiff(k,17)>0.3 && cornerdiff(k,18)>0.1
-                        xline(a4,cornerindex(k,17),'k')
-                         guesscheck(k,3)=1;
-                    elseif cornerdiff(k,19)-cornerdiff(k,18)>0.3 && cornerdiff(k,19)>0.1
-                        xline(a4,cornerindex(k,18),'k')
-                        guesscheck(k,3)=2;
-                    elseif cornerdiff(k,20)-cornerdiff(k,19)>0.3 && cornerdiff(k,20)>0.1
-                        xline(a4,cornerindex(k,19),'k')
-                        guesscheck(k,3)=3;
-                    elseif cornerdiff(k,21)-cornerdiff(k,20)>0.3 && cornerdiff(k,21)>0.1
-                        xline(a4,cornerindex(k,20),'k')
-                        guesscheck(k,3)=4;
-                    else
-                        xline(a4,cornerindex(k,18),'k')
-                        guesscheck(k,3)=2;
-                        noguess='noguess end'
-                    end   
-                 %end start guessing
-                 %label the titles to give user information
-                 title(a5,strcat('b1=',num2str(guesscheck(k,1)),' & b2=',num2str(guesscheck(k,3))));
-                 x=0;
-                 for y=1:k
-                     if cornercontext(y,1)==1
-                         x=x+1;
-                     end
-                 end
-                 title(a4,strcat('number of cells analyzed=',num2str(x)));
-                 
-                 
-                 %end title labeling
-                 [mindetrend,~]=min(ydetrend(a:b));
-                 [maxdetrend,~]=max(ydetrend(a:b));
-                ylim(a4,[mindetrend,maxdetrend]);
-                useranswer3=input('if startguess is right- press enter, otherwise: what position is the real startxe in? (1,2,3,4)');
+                %
+            horizregion=ydetrend(minasls-hstep:minasls+hstep);
 
-                if isempty(useranswer3)==0
-                    guesscheck(k,2)=useranswer3;
-                    cornercontext(k,2)=useranswer3;
-                    cornerindex(k,2)=useranswer3;
-                else
-                    guesscheck(k,2)=-1;
-                    cornercontext(k,2)=guesscheck(k,1);
-                    cornerindex(k,2)=guesscheck(k,1);
+            [minregion,~]=min(horizregion);
+            xlabel(a4,strcat('hstep=',num2str(hstep)));
+
+            %plot horiz line higher with error previously calculated
+            horizline=minregion+stderror*2;%is normally *2 but with 60 Hz noise you need to to up it 
+            yline(a4,horizline,'r')
+            [~,mindiff]=min(yasdiff(a:minasls));
+            mindiff=mindiff+a-1;
+            [~,maxdiff]=max(yasdiff(minasls:b));
+            maxdiff=maxdiff+minasls-1;    %all of it used to be vstepr+1
+            p1=polyfit(xaxispost(mindiff-vstepr+2:mindiff+2),ydetrend(mindiff-vstepr+2:mindiff+2),1);
+            x1=xaxispost(mindiff-vstepr+2:mindiff+2+hstep);
+            y1=polyval(p1,x1);
+            plot(a4,x1,y1,'k')
+            p2=polyfit(xaxispost(maxdiff-vstepr+2:maxdiff+2),ydetrend(maxdiff-vstepr+2:maxdiff+2),1);
+            x2=xaxispost(maxdiff+vstepr-hstep-2:maxdiff+2);
+            y2=polyval(p2,x2);
+            plot(a4,x2,y2,'k')
+
+            %find possible corner point
+            %start corner
+            startxe=(horizline-p1(2))/p1(1);
+            xline(a4,startxe,'b')
+            %end corner
+            endxe=(horizline-p2(2))/p2(1);
+            xline(a4,endxe,'b') 
+
+
+
+
+            % get the four points surrounding the startxe and endxe & +/- vertstep
+            % before and after for context 
+            for j=a:b+1
+                if xaxispost(j)<startxe && xaxispost(j+1)>startxe
+                    %these are the two points in which the corner line crosses 
+                    %the 4 pts of interest are j-1,j,j+1,j+2 
+                    cornercontext(k,4:13)=ydetrend((j-1)-vstep:(j+2)+vstep);
+                    cornerindex(k,4:13)=xaxispost(j-1-vstep:j+2+vstep);
+                    cornerdiff(k,4:13)=ydiff2(j-1-vstep:j+2+vstep);
+                elseif xaxispost(j)<endxe && xaxispost(j+1)>endxe
+                    %these are the two points in which the corner line crosses 
+                    %the 4 pts of interest are j-1,j,j+1,j+2 
+                    cornercontext(k,14:23)=ydetrend((j-1)-vstep:(j+2)+vstep);
+                    cornerindex(k,14:23)=xaxispost(j-1-vstep:j+2+vstep);
+                    cornerdiff(k,14:23)=ydiff2(j-1-vstep:j+2+vstep);
                 end
-                useranswer4=input('if endguess is right- press enter, otherwise: what position is the real endxe in? (1,2,3,4)');
-
-                if isempty(useranswer4)==0
-                    guesscheck(k,4)=useranswer4;
-                    cornercontext(k,3)=useranswer4;
-                    cornerindex(k,3)=useranswer4;
-                else
-                    guesscheck(k,4)=-1;
-                    cornercontext(k,3)=guesscheck(k,3);
-                    cornerindex(k,3)=guesscheck(k,3);
-                end
-                % end pt gathering
-                k=k+1;
-                i=i+2; 
-                hstep=hstepog;
-            else %its a recovery pulse
-                %adjust threshold to allow for better recovery pulse
-                %identification 
-                %make threshold 1/2 of original drop, as long as that is
-                %below the original threshold 
-                sizing=k-1-numsq;
-                squeezing=k-1;
-                magsizing=mean([ym(cornerindex(sizing,13));ym(cornerindex(sizing,14))]); %avg value in sizing pulse(between latest start corner adn earliest end corner)
-                magsizing=yasls(cornerindex(sizing,14))-magsizing;
-                newupper=yasls-(magsizing/2);% setting a new upperlimit for all of the recovery pulses (this should be <the old upperlimit to allow for 
-                plot(a5,xaxispost(a-wp:b+wp),newupper(a-wp:b+wp)-yasls(a-wp:b+wp),'b')
-                if newupper(cornerindex(sizing,14))<upperlimit(cornerindex(sizing,14)) 
-                %if the new upperlimit< old upperlimit then we need to 
-                %recalculate where the pulse crosses the new threshold
-                    indexofdata=cornerindex(squeezing,14); %look for threshold crossings after squeeze pulse
-                    recovstop=1;
-                    newthreshpts=zeros(2,2);
-                    [newthreshpts]=classicthresholding(yasls3,newupper,newthreshpts,indexofdata,1,lengthpost,recovstop,numrecov);
-                    %check if any of the next 10 pulses dont match up with the
-                    %new ones
-                    match=1;
-                    m=2;
-                    while m<(numrecov*2)+2 && match==1
-                        if abs(threshpts(i+m-2,1)-newthreshpts(m,1))<100
-                            match=1;
-                            m=m+1;
-                        else
-                            match=0;
-                        end
-                    end
-                    if m==(numrecov*2)+2
-                        threshpts(i:i+numrecov*2-1,:)=newthreshpts(2:(numrecov*2)+1,:);
-                    else
-                        threshpts(i:i+m-3,:)=newthreshpts(2:m-1,:);
-                        threshpts=[threshpts(1:i+m-3,:);newthreshpts(m:(numrecov*2)+1,:);threshpts(i+m-2:end,:)];
-                        
-                    end
-                end   
-                [rowthresh,~]=size(threshpts)
-                %its time to analyze recovery! 
-                [cornercontext,cornerindex,cornerdiff,guesscheck,i,k,hstep]=analyzerecov(a,threshpts,cornercontext,cornerindex,cornerdiff,guesscheck,k,i,yasdet,stderror,yasdiff,xaxispost,ydetrend,ydiff2,a4,a5,numrecov,steps);
             end
-    elseif useranswer0==1 
+             %what do you think start is? 
+                %we know its either 7,8,9,10
+                if cornerdiff(k,8)>-0.1
+                     xline(a4,cornerindex(k,7),'k')
+                     guesscheck(k,1)=1;
+                elseif cornerdiff(k,9)>-0.1
+                    xline(a4,cornerindex(k,8),'k')
+                    guesscheck(k,1)=2;
+                elseif cornerdiff(k,10)>-0.1
+                    xline(a4,cornerindex(k,9),'k')
+                    guesscheck(k,1)=3;
+                elseif cornerdiff(k,11)>-0.1
+                    xline(a4,cornerindex(k,10),'k')
+                    guesscheck(k,1)=4;
+                else
+                    xline(a4,cornerindex(k,8),'k')
+                    guesscheck(k,1)=2;
+                    noguess='noguess start'
+                end   
+             %end start guessing
+
+             %what do you think end is? 
+                %we know its either 17,18,19,20
+                if cornerdiff(k,18)-cornerdiff(k,17)>0.3 && cornerdiff(k,18)>0.1
+                    xline(a4,cornerindex(k,17),'k')
+                     guesscheck(k,3)=1;
+                elseif cornerdiff(k,19)-cornerdiff(k,18)>0.3 && cornerdiff(k,19)>0.1
+                    xline(a4,cornerindex(k,18),'k')
+                    guesscheck(k,3)=2;
+                elseif cornerdiff(k,20)-cornerdiff(k,19)>0.3 && cornerdiff(k,20)>0.1
+                    xline(a4,cornerindex(k,19),'k')
+                    guesscheck(k,3)=3;
+                elseif cornerdiff(k,21)-cornerdiff(k,20)>0.3 && cornerdiff(k,21)>0.1
+                    xline(a4,cornerindex(k,20),'k')
+                    guesscheck(k,3)=4;
+                else
+                    xline(a4,cornerindex(k,18),'k')
+                    guesscheck(k,3)=2;
+                    noguess='noguess end'
+                end   
+             %end start guessing
+             %label the titles to give user information
+             title(a5,strcat('b1=',num2str(guesscheck(k,1)),' & b2=',num2str(guesscheck(k,3))));
+             x=0;
+             for y=1:k
+                 if cornercontext(y,1)==1
+                     x=x+1;
+                 end
+             end
+             title(a4,strcat('number of cells analyzed=',num2str(x)));
+
+
+             %end title labeling
+             [mindetrend,~]=min(ydetrend(a:b));
+             [maxdetrend,~]=max(ydetrend(a:b));
+            ylim(a4,[mindetrend,maxdetrend]);
+            useranswer3=input('if startguess is right- press enter, otherwise: what position is the real startxe in? (1,2,3,4)');
+
+            if isempty(useranswer3)==0
+                guesscheck(k,2)=useranswer3;
+                cornercontext(k,2)=useranswer3;
+                cornerindex(k,2)=useranswer3;
+            else
+                guesscheck(k,2)=-1;
+                cornercontext(k,2)=guesscheck(k,1);
+                cornerindex(k,2)=guesscheck(k,1);
+            end
+            useranswer4=input('if endguess is right- press enter, otherwise: what position is the real endxe in? (1,2,3,4)');
+
+            if isempty(useranswer4)==0
+                guesscheck(k,4)=useranswer4;
+                cornercontext(k,3)=useranswer4;
+                cornerindex(k,3)=useranswer4;
+            else
+                guesscheck(k,4)=-1;
+                cornercontext(k,3)=guesscheck(k,3);
+                cornerindex(k,3)=guesscheck(k,3);
+            end
+            % end pt gathering
+            k=k+1;
+            i=i+2; 
+            hstep=hstepog;
+             
+    elseif useranswer0==0
+        i=i+1;
+    elseif useranswer0==1
         i=i+2;
     elseif useranswer0==3
         i=i+(numpul*2)-2; %skips the squeeze and recovery pulses
@@ -570,7 +531,7 @@ while i<rowthresh && useranswer==1 && threshpts(i+1,1)+wp<lengthpost
     save(saveto,'cornercontext','cornerindex','cornerdiff','guesscheck','-append');
 end
 %% post checking
-[numr ~]=size(cornerindex);
+[numr,~]=size(cornerindex);
 rcornerindex=zeros(numr,23);
 rcornercontext=zeros(numr,23);
 rcornerdiff=zeros(numr,23);
@@ -749,10 +710,10 @@ end
 %21) Rsquared, 22) numpast sizing, 23) pressure, 24) geometry, 25) device
 %num, 26) voltage, 27) dinput 
 pulses=zeros(numind,28);  
-[recovavg,recovtimept,fitrecov,pulses,baseymatrix]=calculaterecoveryver6(indices,ym,yasls,stderror,pulses,numrecov,numsq,numpul);
-save(saveto,'recovavg','recovtimept','pulses','dinput','-append');
 
-[pulses]=calculateforNPSver6(indices,ym,yasls,sampleRate,N,Length,Deffective,szlength,sqlength,hchannel,baseymatrix,pulses,recovavg,stderror,numpul,numsq);
+save(saveto,'pulses','dinput','-append');
+
+[pulses]=calculateforNPSver6(indices,ym,yasls,sampleRate,N,Length,Deffective,szlength,sqlength,hchannel,pulses,numsq);
 
 pulsesforprint=cell(numind,28);
 pulsesforprint(:,1)=cellstr(name);

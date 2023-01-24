@@ -1,4 +1,4 @@
-function [pulses]=calculateforNPSver6(indices,ym,yasls,samplerate,N,Length,Deff,szlength,sqlength,hchannel,baseymatrix,pulses,recovavg,stderror,numpul,numsq)
+function [pulses]=calculateforNPSver6(indices,ym,yasls,samplerate,N,Length,Deff,szlength,sqlength,hchannel,pulses,numsq)
 %indices should be matrix with 2+numsq*2 columns: 1=start sz 2=endsz 3=start sq1 4=
 %end sq1... etc. 
 
@@ -16,16 +16,9 @@ for i=1:m
    
     if indices(i,1) ~=0 && indices(i,2) ~=0 %are there sizing points recorded (this shoudl always be true) 
       
-        if pulses(i,20)~=0 %are there recovery pulses 
-            startpulse=indices(i,1)-100;
-            endpulse=indices(i,numpul*2)+100;
-            relevantlength=endpulse-startpulse+1;
-            baseline=baseymatrix(1:relevantlength,i);
-            relevantsz=indices(i,2)-indices(i,1);
-            pulses(i,5)=mean(baseline(101:relevantsz+101));%Ibaseline
-        else %no recovery recorded
-            pulses(i,5)=mean(yasls(indices(i,1):indices(i,2),1));%Ibaseline
-        end
+
+        pulses(i,5)=mean(yasls(indices(i,1):indices(i,2),1));%Ibaseline
+
         sizeptsexist=1;
         szstart=indices(i,1);
         szend=indices(i,2);
@@ -84,21 +77,7 @@ for i=1:m
         end
     
     
-%     if pulses(i,20)~=0
-%         %when do the recovery segments cross below the sizing drop
-%         j=1;
-%         while j<10
-%             if recovavg(i,j)<=-deltaI && recovavg(i,j+1)-stderror<=-deltaI
-%                 pulses(i,13)=j;
-%                 j=11;
-%             else
-%                 j=j+1;
-%             end
-%             if j==10 
-%                 pulses(i,13)=11;
-%             end
-%         end
-%     end
+
     sizeptsexist=0;
 
 end
