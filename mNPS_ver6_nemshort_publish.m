@@ -17,7 +17,7 @@ Deffective=10.19; %determined by measuring beads of known size in your device
 X=(dinput^3)/((Deffective^2)*Length)*(1/(1-0.8*((dinput/Deffective)^3))); %for dinput= minimum diameter we are interested in measuring 
 Q=((sqchan)^3)/((Deffective^2)*Length)*(1/(1-0.8*((sqchan/Deffective)^3)));%for when diameter=sqchannel width--> threshold for 0% strain 
 Y=(5^3)/((Deffective^2)*Length)*(1/(1-0.8*((5/Deffective)^3))); %CONSIDER DELETING
-T=(sizingchan^3)/((Deffective^2)*Length)*(1/(1-0.8*((sizingchan/Deffective)^3))); %for when diameter=sizing channel width --> threshold above which we can't accurately measure diameter
+
 
 % parameters specific to device and pressure
 %   - entire pulse length on avg= 63 (73), with highest around 72 (77)
@@ -36,7 +36,7 @@ wp=698; %what you have to add to encompass whole post
 interval=40; %less than this and there is no pulse (subject to change) (was 30 but then the p100 in 10L) (was 20- then 196 in 10)
 numrecov=0; %number of recovery pulses
 numpul=2; %number of total pulses in a cell event 
-numsq=1;
+numsq=1;%number of squeeze channels 
 
 %% option to continue where you left off last time 
 %do we want to continue analyzing from a file we left off on? 
@@ -116,7 +116,6 @@ yasls3=-1*ASLS2(-1*ym,aslsparam3); %smoothest signal
 
 ydetrend = ym-yasls; %subtract the baseline from the signal, bringing it flat and to zero
 expectedpore=yasls.*(1-X); %this is the threshold for the actual pulse
-diameter5 = yasls.*(1-Y); %CONSIDER DELETING 
 upperlimit= yasls-((yasls-expectedpore).*0.9); % this is the initial threshold
 
 
@@ -148,7 +147,6 @@ save(saveto,'ym','yasls','ydetrend','ydiff2','data','yasls2');
     %for plotting expected pore pulse drop  
     plot(xaxispost,expectedpore)
     plot(xaxispost,upperlimit)
-    plot(xaxispost,diameter5) %line denoting cells with a diameter of 5 microns, CONSIDER DELETING 
     plot(xaxispost,yasls2) 
     plot(xaxispost,yasls3)
     xlabel(xtitle);
@@ -156,7 +154,7 @@ save(saveto,'ym','yasls','ydetrend','ydiff2','data','yasls2');
     sz=10;
     mkr='.';
     hold(a1,'on');
-    legend('ym','yasls','expectedpore','upperlimit', 'diameter5','asls2','asls3') %CONSIDER DELETING DIAMETER 5
+    legend('ym','yasls','expectedpore','upperlimit','asls2','asls3') %CONSIDER DELETING DIAMETER 5
     
     f2=figure('Name','Data Detrended'); 
     a2=axes;
