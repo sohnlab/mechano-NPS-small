@@ -106,9 +106,9 @@ sqlimit= yasls.*(1-Q);
 
 ydiff=diff(ydetrend);
 ydiff2=[0;ydiff];
-ydiff2=(ydiff2.^3)*(10^10); %larger differences are enhanced exponentially
+ydiff2=(ydiff2.^3)*(10^10); %larger differences are increased exponentially
 yasdet=yasls2-yasls;
-yasdiff=diff(yasls2-yasls);%this was yasls3 until there was noise and it made it bad 
+yasdiff=diff(yasls2-yasls);
 yasdiff=[0;yasdiff];
 yasdiff=(yasdiff.^3)*(10^10);
 save(saveto,'ym','yasls','ydetrend','ydiff2','data','yasls2');
@@ -136,7 +136,7 @@ save(saveto,'ym','yasls','ydetrend','ydiff2','data','yasls2');
     sz=10;
     mkr='.';
     hold(a1,'on');
-    legend('ym','yasls','expectedpore','upperlimit','asls2','asls3') %CONSIDER DELETING DIAMETER 5
+    legend('ym','yasls','expectedpore','upperlimit','asls2','asls3') 
     
     f2=figure('Name','Data Detrended'); 
     a2=axes;
@@ -173,7 +173,6 @@ save(saveto,'ym','yasls','ydetrend','ydiff2','data','yasls2');
              endstd=vals.Position(1,1);
          end
          stderror=std(ydetrend(startstd:endstd))
-              %stderror=        0.00036256116737692 %this is for training purposes
     end
     
     
@@ -197,65 +196,12 @@ if exist('lastpulse','var')==1
 end
 recovstop=0;
 [threshpts]=classicthresholding(yasls3,upperlimit,threshpts,i,k,lengthpost,recovstop);
-% while i<lengthpost-2
-%     if yasls3(i)==upperlimit(i) % if a data point== the threshold
-%         threshpts(k,1)=i;
-% %         xline(a2,i,'k');
-%         %determine whether trending down or up? 
-%         if yasls3(i-1)>upperlimit(i) && yasls3(i+1)<upperlimit(i+1) %trending down 
-%             threshpts(k,2)=0;
-%         elseif yasls3(i-1)<upperlimit(i) && yasls3(i+1)>upperlimit(i+1) %trending up 
-%             threshpts(k,2)=1;
-%         else
-%             threshpts(k,2)=3;
-%         end
-%             
-%         k=k+1;
-%     elseif yasls3(i)>upperlimit(i) && yasls3(i+1)<upperlimit(i+1) && yasls3(i+2)<upperlimit(i+2) % if btwn two points going down
-%         threshpts(k,1)=i;
-%         threshpts(k,2)=0;
-% %         xline(a2,i,'k');
-%         k=k+1;
-%     elseif yasls3(i)<upperlimit(i) && yasls3(i+1)>upperlimit(i+1) && yasls3(i-1)<upperlimit(i-1) % if btwn two points going up 
-%         threshpts(k,1)=i+1;
-%         threshpts(k,2)=1;
-% %         xline(a2,i+1,'k');
-%         k=k+1;
-%     end
-%     i=i+1;
-% end
-
 save(saveto,'stderror','-append');
-%% remove threshpts that are just error
 
+% remove threshpts that are just error
 [rowthresh,~]=size(threshpts);
 i=1;
 [threshpts,rowthresh]=fixthreshptserror(threshpts,interval,i,rowthresh);
-
-% if threshpts(i,2)==1
-% %     xline(a2,threshpts(i),'b');
-%     threshpts(i,:)=[];
-%     rowthresh=rowthresh-1;
-% end
-% while i<rowthresh
-%     if threshpts(i+1,1)-threshpts(i,1)<interval
-%         if threshpts(i,2)==0 && threshpts(i+1,2)==1
-% %             xline(a2,threshpts(i),'b');
-% %             xline(a2,threshpts(i+1),'b');
-%             threshpts(i,:)=[];
-%             threshpts(i,:)=[];
-%             rowthresh=rowthresh-2;
-%         elseif threshpts(i,2)==1     %idk what this section is?? it might be bad start
-% %             xline(a2,threshpts(i),'b');
-%             threshpts(i,:)=[];
-%             rowthresh=rowthresh-1;
-%         end
-%     else
-%         i=i+2;
-%     end
-%     
-% end
-
 for i=1:rowthresh
     xline(a2,threshpts(i),'k');
 end
@@ -336,17 +282,17 @@ while i<rowthresh && useranswer==1 && threshpts(i+1,1)+wp<lengthpost
   
     if useranswer0==2 %analyze 
        
-        % categorize as sizing, squeeze, or recovery for training purposes 
-            useranswer2=input('is it sizing(1),squeeze (2), or recovery (3)');
+        % categorize as sizing or squeeze 
+            useranswer2=input('is it sizing(1) or squeeze (2)');
             if isempty(useranswer2)
-                 useranswer2=input('is it sizing(1),squeeze (2), or recovery (3)');
+                 useranswer2=input('is it sizing(1) or squeeze (2)');
             end
-            if useranswer2 ~= 1 && useranswer2 ~=2 && useranswer2~=3
-                useranswer2=input('is it sizing(1),squeeze (2), or recovery (3)');
+            if useranswer2 ~= 1 && useranswer2 ~=2 
+                useranswer2=input('is it sizing(1) or squeeze (2)');
             end
             if useranswer2 ~= 1 && k==1
-                 useranswer2=input('is it sizing(1),squeeze (2), or recovery (3)');
-            end % CHECK TO MAKE SURE THIS WORKS 
+                 useranswer2=input('is it sizing(1) or squeeze (2)');
+            end 
             
             
             switch useranswer2
@@ -360,10 +306,6 @@ while i<rowthresh && useranswer==1 && threshpts(i+1,1)+wp<lengthpost
                     cornerindex(k,1)=2;
                     cornerdiff(k,2)=2;
                     hstep=hstep+10;
-                case 3
-                    cornercontext(k,1)=3;
-                    cornerindex(k,1)=3;
-                    cornerdiff(k,2)=3;
             end
             
             
@@ -518,7 +460,7 @@ while i<rowthresh && useranswer==1 && threshpts(i+1,1)+wp<lengthpost
     elseif useranswer0==1
         i=i+2;
     elseif useranswer0==3
-        i=i+(numpul*2)-2; %skips the squeeze and recovery pulses
+        i=i+(numpul*2)-2; %skips the squeeze 
     elseif useranswer0==4
         i=i+(numpul*2); %skips the entire cell event 
     elseif useranswer0==5
