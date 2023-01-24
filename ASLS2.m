@@ -70,4 +70,4 @@ for i = 1:max_iter
     w = p .* (data > (baseline_est+noise_margin)) + (1 - p) .* (data < (baseline_est+noise_margin));
 end
 
-end# mechano-NPS-small
+end

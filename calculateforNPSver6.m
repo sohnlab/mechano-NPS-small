@@ -1,4 +1,4 @@
-function [pulses]=calculateforNPSver6(indices,ym,yasls,samplerate,N,Length,Deff,szlength,sqlength,hchannel,baseymatrix,pulses,recovavg,stderror,numpul,info,numsq)
+function [pulses]=calculateforNPSver6(indices,ym,yasls,samplerate,N,Length,Deff,szlength,sqlength,hchannel,baseymatrix,pulses,recovavg,stderror,numpul,numsq)
 %indices should be matrix with 2+numsq*2 columns: 1=start sz 2=endsz 3=start sq1 4=
 %end sq1... etc. 
 
@@ -10,19 +10,8 @@ function [pulses]=calculateforNPSver6(indices,ym,yasls,samplerate,N,Length,Deff,
 [m,~]=size(indices);
 pulsesforprint=num2cell(pulses);
 sizeptsexist=0;
-sqorder=zeros(1,3);
-        switch info(1,2) 
-            case 789
-                sqorder=[7 8 9];
-            case 978
-                sqorder=[9 7 8]; 
-            case 897 
-                sqorder=[8 9 7]; 
-            case 987
-                sqorder=[9 8 7];
-            case 14
-                sqorder=zeros(1,3);
-        end
+
+      
 for i=1:m 
    
     if indices(i,1) ~=0 && indices(i,2) ~=0 %are there sizing points recorded (this shoudl always be true) 
@@ -51,11 +40,6 @@ for i=1:m
         deltaT=(szend-szstart)*N/samplerate;
         pulses(i,7)=szlength/deltaT; %flowspeed
         
-        % calculate strain in each sq channel--> this assummes 3 squeeze
-        % channels 
-        if sqorder(1,1)~=0
-            pulses(i,17:19)=(pulses(i,6)-sqorder)/pulses(i,6);
-        end
         
     end
     

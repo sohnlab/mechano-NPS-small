@@ -61,32 +61,14 @@ if contanalysis==1
     lastpulse=pulses(numpulse,2);
     clear pulses
 else
-    %ask user for info 
+    %ask user for info
+    %info is 4 columns: col1=pressure, col4=voltage 
     info=zeros(1,4);
     userinfop=input(strcat(name,'what is the pressure?'));
     if isfloat(userinfop)==0
         userinfop=input(strcat(name,'what is the pressure?'));
     end
     info(1,1)=userinfop;
-    userinfod=input(strcat(name,'what is the device number?'));
-    if isfloat(userinfod)==0
-        userinfod=input(strcat(name,'what is the device number?'));
-    end
-    info(1,3)=userinfod;
-    userinfod=round(userinfod);
-    switch userinfod
-        case {1,4,5}
-            info(1,2)=789;
-        case {6,10}
-            info(1,2)=978;
-        case {7,8,11}
-            info(1,2)=897;
-        case {3,9}
-            info(1,2)=14;
-        case{2}
-            info(1,2)=987;
-    end
-    
     userinfov=input(strcat(name,'what is the voltage?'));
     if isfloat(userinfov)==0
         userinfov=input(strcat(name,'what is the voltage?'));
@@ -770,22 +752,13 @@ pulses=zeros(numind,28);
 [recovavg,recovtimept,fitrecov,pulses,baseymatrix]=calculaterecoveryver6(indices,ym,yasls,stderror,pulses,numrecov,numsq,numpul);
 save(saveto,'recovavg','recovtimept','pulses','dinput','-append');
 
-[pulses]=calculateforNPSver6(indices,ym,yasls,sampleRate,N,Length,Deffective,szlength,sqlength,hchannel,baseymatrix,pulses,recovavg,stderror,numpul,info,numsq);
+[pulses]=calculateforNPSver6(indices,ym,yasls,sampleRate,N,Length,Deffective,szlength,sqlength,hchannel,baseymatrix,pulses,recovavg,stderror,numpul,numsq);
 
 pulsesforprint=cell(numind,28);
 pulsesforprint(:,1)=cellstr(name);
 [pulses]=recordanalysisinfo(pulses,dinput,info,noise);
 pulsesforprint(:,2:end)=num2cell(pulses(:,2:end));
-%change device#.0 or .1 to L vs. R 
-devicenum=pulses(1,25);
-devicenumr=round(devicenum);
-rorl=round(devicenum-devicenumr,1);
-if rorl==0
-    devicenumcell=strcat(num2str(devicenumr),'L');
-elseif rorl==0.1
-    devicenumcell=strcat(num2str(devicenumr),'R');
-end
-pulsesforprint(:,25)=cellstr(devicenumcell);
+
     
     
     
