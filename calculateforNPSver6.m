@@ -2,13 +2,6 @@ function [pulses]=calculateforNPSver6(indices,ym,yasls,samplerate,N,Length,Deff,
 %indices should be matrix with 2+numsq*2 columns: 1=start sz 2=endsz 3=start sq 4=
 %end sq... etc. 
 
-%%pulses columns: 1) filename, 2) sizing start, 3) size end, 4) Iavg sz, 5)
-%Iavgbaseline, 6)diameter, 7)uflow (sizing), 8) sqstart1, 9) sqend1, 10-13)
-%same as 8,9 but for sq2,3, 14-16) vratio1-3, 17-19) strain1-3, 20) tau,
-%21) Rsquared, 22) numpast sizing, 23) pressure, 24) geometry, 25) device
-%num, 26) voltage, 27) dinput 
-
-
 %pulses columns: 1) filename, 2) sizing start, 3) size end, 4) Iavg sz, 5)
 %Iavgbaseline, 6)diameter, 7)uflow (sizing), 8) sqstart1, 9) sqend1, 10)wcdi 11)strain 
 %12) pressure, 13) voltage, 14) dinput, 15) noise level used in asls2 

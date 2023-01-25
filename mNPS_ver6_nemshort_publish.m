@@ -275,7 +275,7 @@ while i<rowthresh && useranswer==1 && threshpts(i+1,1)+wp<lengthpost
     
 
     
-    useranswer0=input('bad start=0, next=1, analyze=2,skip sq and recov pulses=3,skip entire cell event=4, go back 1=5, go back 2 pulses=6, stop=anythingelse');
+    useranswer0=input('bad start=0, next=1, analyze=2,skip entire cell event=3, skip 2 cell events=4, go back 1=5, go back 2 pulses=6, stop=anythingelse');
     
   
     if useranswer0==2 %analyze 
@@ -371,45 +371,45 @@ while i<rowthresh && useranswer==1 && threshpts(i+1,1)+wp<lengthpost
                 end
             end
              %what do you think start is? 
-                %we know its either 7,8,9,10
-                if cornerdiff(k,8)>-0.1
-                     xline(a4,cornerindex(k,7),'k')
-                     guesscheck(k,1)=1;
-                elseif cornerdiff(k,9)>-0.1
-                    xline(a4,cornerindex(k,8),'k')
-                    guesscheck(k,1)=2;
-                elseif cornerdiff(k,10)>-0.1
-                    xline(a4,cornerindex(k,9),'k')
-                    guesscheck(k,1)=3;
-                elseif cornerdiff(k,11)>-0.1
-                    xline(a4,cornerindex(k,10),'k')
-                    guesscheck(k,1)=4;
-                else
-                    xline(a4,cornerindex(k,8),'k')
-                    guesscheck(k,1)=2;
-                    noguess='noguess start'
-                end   
+            %we know its either 7,8,9,10
+            if cornerdiff(k,8)>-0.1
+                 xline(a4,cornerindex(k,7),'k')
+                 guesscheck(k,1)=1;
+            elseif cornerdiff(k,9)>-0.1
+                xline(a4,cornerindex(k,8),'k')
+                guesscheck(k,1)=2;
+            elseif cornerdiff(k,10)>-0.1
+                xline(a4,cornerindex(k,9),'k')
+                guesscheck(k,1)=3;
+            elseif cornerdiff(k,11)>-0.1
+                xline(a4,cornerindex(k,10),'k')
+                guesscheck(k,1)=4;
+            else
+                xline(a4,cornerindex(k,8),'k')
+                guesscheck(k,1)=2;
+                noguess='noguess start'
+            end   
              %end start guessing
 
              %what do you think end is? 
-                %we know its either 17,18,19,20
-                if cornerdiff(k,18)-cornerdiff(k,17)>0.3 && cornerdiff(k,18)>0.1
-                    xline(a4,cornerindex(k,17),'k')
-                     guesscheck(k,3)=1;
-                elseif cornerdiff(k,19)-cornerdiff(k,18)>0.3 && cornerdiff(k,19)>0.1
-                    xline(a4,cornerindex(k,18),'k')
-                    guesscheck(k,3)=2;
-                elseif cornerdiff(k,20)-cornerdiff(k,19)>0.3 && cornerdiff(k,20)>0.1
-                    xline(a4,cornerindex(k,19),'k')
-                    guesscheck(k,3)=3;
-                elseif cornerdiff(k,21)-cornerdiff(k,20)>0.3 && cornerdiff(k,21)>0.1
-                    xline(a4,cornerindex(k,20),'k')
-                    guesscheck(k,3)=4;
-                else
-                    xline(a4,cornerindex(k,18),'k')
-                    guesscheck(k,3)=2;
-                    noguess='noguess end'
-                end   
+            %we know its either 17,18,19,20
+            if cornerdiff(k,18)-cornerdiff(k,17)>0.3 && cornerdiff(k,18)>0.1
+                xline(a4,cornerindex(k,17),'k')
+                 guesscheck(k,3)=1;
+            elseif cornerdiff(k,19)-cornerdiff(k,18)>0.3 && cornerdiff(k,19)>0.1
+                xline(a4,cornerindex(k,18),'k')
+                guesscheck(k,3)=2;
+            elseif cornerdiff(k,20)-cornerdiff(k,19)>0.3 && cornerdiff(k,20)>0.1
+                xline(a4,cornerindex(k,19),'k')
+                guesscheck(k,3)=3;
+            elseif cornerdiff(k,21)-cornerdiff(k,20)>0.3 && cornerdiff(k,21)>0.1
+                xline(a4,cornerindex(k,20),'k')
+                guesscheck(k,3)=4;
+            else
+                xline(a4,cornerindex(k,18),'k')
+                guesscheck(k,3)=2;
+                noguess='noguess end'
+            end   
              %end start guessing
              %label the titles to give user information
              title(a5,strcat('b1=',num2str(guesscheck(k,1)),' & b2=',num2str(guesscheck(k,3))));
@@ -458,9 +458,9 @@ while i<rowthresh && useranswer==1 && threshpts(i+1,1)+wp<lengthpost
     elseif useranswer0==1
         i=i+2;
     elseif useranswer0==3
-        i=i+(numpul*2)-2; %skips the squeeze 
-    elseif useranswer0==4
         i=i+(numpul*2); %skips the entire cell event 
+    elseif useranswer0==4
+        i=i+(numpul*3); %skips 2 cell events
     elseif useranswer0==5
         i=i-2;
     elseif useranswer0==6
@@ -557,10 +557,7 @@ indices=zeros(1,numpul*2);
 %for endsz--> 1=17, 2=18, 3=19, 4=20 --> 16+ 
 k=1;%the number of cell events
 %i=the number of current pulses *2 (where there are 9 pulses per cell event) 
-% for i: (1) startsz (2) endsz (3) startsq1 (4) endsq1 (5) startsq2 (6)
-% endsq2 (7) startsq3 (8) endsq3 (9) startrecov1 (10) endrecov1 (11)
-% startrecov2 (12)endrecov2 (13) startrecov3 (14) endrecov3 (15)
-% startrecov4 (16) endrecov4 (17) startrecov5 (18) endrecov5
+% for i: (1) startsz (2) endsz (3) startsq1 (4) endsq1
 for i=1:rguess
     if cornercontext(i,1)==1 %is sizing
         [startindex,endindex]=getindices(cornerindex(i,:),guesscheck(i,:));
