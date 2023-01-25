@@ -273,9 +273,7 @@ while i<rowthresh && useranswer==1 && threshpts(i+1,1)+wp<lengthpost
         xline(a5,threshpts(i+1,1),'b')
    
     
-   
-    
-    
+
     
     useranswer0=input('bad start=0, next=1, analyze=2,skip sq and recov pulses=3,skip entire cell event=4, go back 1=5, go back 2 pulses=6, stop=anythingelse');
     
@@ -604,34 +602,6 @@ for i=1:rguess
                     k=k+1;
                 end
             end
-        end
-      
-    elseif cornercontext(i,1)==3
-        if indices(k,9)==0 
-            [startri,endri]=getindices(cornerindex(i,:),guesscheck(i,:)); 
-            indices(k,9)=startri;
-            indices(k,10)=endri;
-        elseif indices(k,11)==0
-            [startri,endri]=getindices(cornerindex(i,:),guesscheck(i,:)); 
-            indices(k,11)=startri;
-            indices(k,12)=endri;
-        elseif indices(k,13)==0
-            [startri,endri]=getindices(cornerindex(i,:),guesscheck(i,:)); 
-            indices(k,13)=startri;
-            indices(k,14)=endri;
-        elseif indices(k,15)==0
-            [startri,endri]=getindices(cornerindex(i,:),guesscheck(i,:)); 
-            indices(k,15)=startri;
-            indices(k,16)=endri;
-        elseif indices(k,17)==0
-            [startri,endri]=getindices(cornerindex(i,:),guesscheck(i,:)); 
-            indices(k,17)=startri;
-            indices(k,18)=endri;
-        end
-       if i+1<=rguess
-            if cornercontext(i+1,1)~= 3 %if the next pulse is not a recov pulse go to next indices row 
-            k=k+1;
-            end 
         end
     end
 end
