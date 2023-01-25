@@ -10,8 +10,8 @@ sizingchan=5.5; %microns, width of sizing channel
 Length=1550; %microns, overall length of device (including entrance node and exit node) 
 szlength = 700; %microns, length of sizing channel 
 sqlength = 700; %microns, length of the squeeze channel 
-hchannel = 9.9; %microns 
-Deffective=10.19; %determined by measuring beads of known size in your device 
+hchannel = 10; %microns 
+Deffective=11.07; %determined by measuring beads of known size in your device 
 
 % calculate average deltaI/I for different values of interest
 X=(dinput^3)/((Deffective^2)*Length)*(1/(1-0.8*((dinput/Deffective)^3))); %for dinput= minimum diameter we are interested in measuring 
@@ -55,15 +55,15 @@ if contanalysis==1
         saveto=saveto(1:end-1);
         saveto=strcat(saveto,num2str(numanalysis));
     end
-    info=pulses(1,23:26);
+    info=pulses(1,12:15);
     %cutoff data after the last pulse analyzed 
     [numpulse,~]=size(pulses);
     lastpulse=pulses(numpulse,2);
     clear pulses
 else
     %ask user for info
-    %info is 4 columns: col1=pressure, col4=voltage 
-    info=zeros(1,4);
+    %info is 2 columns: col1=pressure, col4=voltage 
+    info=zeros(1,2);
     userinfop=input(strcat(name,'what is the pressure?'));
     if isfloat(userinfop)==0
         userinfop=input(strcat(name,'what is the pressure?'));
@@ -73,7 +73,7 @@ else
     if isfloat(userinfov)==0
         userinfov=input(strcat(name,'what is the voltage?'));
     end
-    info(1,4)=userinfov;
+    info(1,2)=userinfov;
 end
 
 %% data pre-processing
@@ -617,17 +617,15 @@ while x<=numind
     x=x+1;
 end
 %pulses columns: 1) filename, 2) sizing start, 3) size end, 4) Iavg sz, 5)
-%Iavgbaseline, 6)diameter, 7)uflow (sizing), 8) sqstart1, 9) sqend1, 10-13)
-%same as 8,9 but for sq2,3, 14-16) vratio1-3, 17-19) strain1-3, 20) tau,
-%21) Rsquared, 22) numpast sizing, 23) pressure, 24) geometry, 25) device
-%num, 26) voltage, 27) dinput 
-pulses=zeros(numind,28);  
+%Iavgbaseline, 6)diameter, 7)uflow (sizing), 8) sqstart1, 9) sqend1, 10)wcdi 11)strain 
+%12) pressure, 13) voltage, 14) dinput, 15) noise level used in asls2  
+pulses=zeros(numind,15);  
 
 save(saveto,'pulses','dinput','-append');
 
-[pulses]=calculateforNPSver6(indices,ym,yasls,sampleRate,N,Length,Deffective,szlength,sqlength,hchannel,pulses,numsq);
+[pulses]=calculateforNPSver6(indices,ym,yasls,sampleRate,N,Length,Deffective,szlength,sqlength,hchannel,pulses,sqchan);
 
-pulsesforprint=cell(numind,28);
+pulsesforprint=cell(numind,15);
 pulsesforprint(:,1)=cellstr(name);
 [pulses]=recordanalysisinfo(pulses,dinput,info,noise);
 pulsesforprint(:,2:end)=num2cell(pulses(:,2:end));
